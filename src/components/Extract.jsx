@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect} from "react";
-import {Link, useNavigate} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import axios from "axios";
 import styled from "styled-components";
 import UserContext from "../context/UserContext"
@@ -8,12 +8,17 @@ export default function Extract(){
     const { userInfo } = useContext(UserContext);
     const [extract, setExtract] = useState([])
     const navigate = useNavigate();
+    const formatter = new Intl.NumberFormat('pt-br', {
+        style: 'currency',
+        currency: 'BRL'
+    });
 
     useEffect(()=>{const config = {
         headers: {
             "Authorization": `Bearer ${userInfo.token}`
         }
     };
+
     const promise = axios.get("https://projetomywalletback.herokuapp.com/extract", config);
     promise.then(response=>setExtract(response.data))
     },[])
@@ -56,7 +61,7 @@ export default function Extract(){
                 <BalanceBar>
                     SALDO
                     <ColorSpan color={balance>0?"#03AC00":"#000000"}>
-                        {balance}
+                        {formatter.format(balance).slice(3)}
                     </ColorSpan>
                 </BalanceBar>
             )
@@ -75,7 +80,7 @@ export default function Extract(){
                     </ColorSpan>
                 </div>
                 <ColorSpan color={type==="deposit"?"#03AC00":"#C70000"}>
-                    {value}
+                    {formatter.format(value).slice(3)}
                 </ColorSpan>
             </TransactionBar>
         )
