@@ -2,14 +2,23 @@ import { useState } from "react";
 import {Link, useNavigate} from 'react-router-dom';
 import axios from "axios";
 import styled from "styled-components";
+import {Puff} from "react-loader-spinner"
 
 export default function Register(){
     const [registerInfo, setRegisterInfo]=useState({name:'',email:'', password:'', repeatPassword:''})
     const [disable, setDisable]=useState(false)
+    const navigate = useNavigate()
 
     function submitData(event){
         event.preventDefault();
-        console.log(registerInfo)
+        setDisable(true);
+        const promise = axios.post("https://projetomywalletback.herokuapp.com/sign-up", registerInfo);
+        promise.then(()=>navigate("/"));
+        promise.catch(()=>{
+            setDisable(false)
+            setRegisterInfo({name:'',email:'', password:'', repeatPassword:''})
+            alert("Não foi possivel fazer o cadastro")
+        });
     }
 
     return (
@@ -45,14 +54,14 @@ export default function Register(){
 
                 <input 
                 type="password" 
-                id="password" 
+                id="repeatPassword" 
                 value={registerInfo.repeatPassword}
                 required
                 onChange={(e) => setRegisterInfo({...registerInfo,repeatPassword: e.target.value})}
                 placeholder="Confirme a senha"
                 disabled = {disable}/>
 
-                <button type="submit" disabled = {disable}>{disable?<ThreeDots color="#FFFFFF" width={52} height={14}/>:"Cadastrar"}</button>
+                <button type="submit" disabled = {disable}>{disable?<Puff color="#FFFFFF" width={40} height={40}/>:"Cadastrar"}</button>
             </form>
             <Link to="/"><span>Já tem uma conta? Entre agora!</span></Link>
         </Main>)

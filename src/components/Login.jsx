@@ -1,15 +1,30 @@
-import { useState } from "react";
+import { useState, useContext} from "react";
 import {Link, useNavigate} from 'react-router-dom';
 import axios from "axios";
 import styled from "styled-components";
+import UserContext from "../context/UserContext"
+import {Puff} from "react-loader-spinner"
 
 export default function Login(){
-    const [registerInfo, setRegisterInfo]=useState({name:'',email:'', password:'', repeatPassword:''})
-    const [disable, setDisable]=useState(false)
+    const { setUserInfo } = useContext(UserContext)
+    const [loginInfo, setLoginInfo]=useState({email:'', password:''});
+    const [disable, setDisable]=useState(false);
+    const navigate = useNavigate()
 
     function submitData(event){
         event.preventDefault();
-        console.log(registerInfo)
+        setDisable(true);
+        const promise = axios.post("https://projetomywalletback.herokuapp.com/sign-in", loginInfo);
+        promise.then(response=>{
+            setUserInfo(response.data);
+            navigate("/extract")
+        });
+
+        promise.catch(()=>{
+            setDisable(false)
+            setLoginInfo({email:'', password:''})
+            alert("E-mail ou senha incorretos");
+        });
     }
 
     return (
@@ -19,22 +34,22 @@ export default function Login(){
                 <input 
                 type="email" 
                 id="email" 
-                value={registerInfo.email} 
+                value={loginInfo.email} 
                 required
-                onChange={(e) => setRegisterInfo({...registerInfo, email: e.target.value})}
+                onChange={(e) => setLoginInfo({...loginInfo, email: e.target.value})}
                 placeholder="E-mail"
                 disabled = {disable}/>
 
                 <input 
                 type="password" 
                 id="password" 
-                value={registerInfo.password}
+                value={loginInfo.password}
                 required
-                onChange={(e) => setRegisterInfo({...registerInfo,password: e.target.value})}
+                onChange={(e) => setLoginInfo({...loginInfo,password: e.target.value})}
                 placeholder="Senha"
                 disabled = {disable}/>
 
-                <button type="submit" disabled = {disable}>{disable?<ThreeDots color="#FFFFFF" width={52} height={14}/>:"Entrar"}</button>
+                <button type="submit" disabled = {disable}>{disable?<Puff color="#FFFFFF" width={40} height={40}/>:"Entrar"}</button>
             </form>
             <Link to="/cadastro"><span>Primeira vez? Cadastre-se!</span></Link>
         </Main>)
